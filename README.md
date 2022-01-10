@@ -1,6 +1,6 @@
 # E-commerce
 
-Create and organize products used in e-commerce and checkout.
+Create and organize products used in e-commerce, orders and checkout.
 
 ![E-commerce](https://cdn.kenzap.com/github/img/extension-ecommerce.png)
 
@@ -16,6 +16,7 @@ Create and organize products used in e-commerce and checkout.
 <li>Scale and localize solution</li>
 <li>Set custom notifications</li>
 <li>Collaborate</li>
+<li>View orders</li>
 </ul>
 
 ## Setup
