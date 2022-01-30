@@ -1,13 +1,7 @@
 // js dependencies
 import { getSiteId, getProductId, simulateClick, getCookie, parseApiError, onClick, onChange, formatPrice, initBreadcrumbs, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, simpleTags } from "../_/_ui.js"
+import { showLoader, hideLoader, simpleTags, initHeader, initFooter } from "../_/_ui.js"
 import { HTMLContent } from "../_/_cnt_product_edit.js"
-import { i18n } from "../_/_i18n.js"
- 
-// references
-const __ = i18n.__;
-
-const CDN = 'https://kenzap-sites.oss-ap-southeast-1.aliyuncs.com';
 
 // where everything happens
 const _this = {
@@ -34,6 +28,7 @@ const _this = {
                 'Accept': 'application/json',
                 'Content-Type': 'text/plain',
                 'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                'Kenzap-Header': localStorage.hasOwnProperty('header'),
                 'Kenzap-Token': getCookie('kenzap_token'),
                 'Kenzap-Sid': getSiteId(),
             },
@@ -65,8 +60,8 @@ const _this = {
 
             if (response.success){
 
-                // init locale
-                i18n.init(response.locale);
+                // init header
+                initHeader(response);
   
                 // get core html content 
                 document.querySelector('#contents').innerHTML = HTMLContent(__);
@@ -87,9 +82,6 @@ const _this = {
                 
                 // bind frontend data
                 _this.renderPage(response.product);
-
-                // init header
-                _this.initHeader(response);
 
                 // load images if any
                 _this.loadImages(response.product);
@@ -160,16 +152,6 @@ const _this = {
         let pcats = document.querySelector('#p-cats');
         if (product.cats) pcats.setAttribute('data-simple-tags', product.cats);
         const tags = new simpleTags(pcats);
-    },
-    initHeader: (response) => {
-
-        onClick('.nav-back', (e) => {
-
-            e.preventDefault();
-            console.log('.nav-back');
-            let link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-            simulateClick(link);
-        });
     },
     initListeners: (type = 'partial') => {
 

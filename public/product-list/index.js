@@ -88,16 +88,15 @@
     var id = urlParams.get('sid') ? urlParams.get('sid') : "";
     return id;
   };
+  var replaceQueryParam = function replaceQueryParam(param, newval, search) {
+    var regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
+    var query = search.replace(regex, "$1").replace(/&$/, '');
+    return (query.length > 2 ? query + "&" : "?") + (newval ? param + "=" + newval : '');
+  };
   var getPageNumber = function getPageNumber() {
-    var url = window.location.href.split('/');
-    var page = url[url.length - 1];
-    var pageN = 1;
-
-    if (page.indexOf('page') == 0) {
-      pageN = page.replace('page', '').replace('#', '');
-    }
-
-    return parseInt(pageN);
+    var urlParams = new URLSearchParams(window.location.search);
+    var page = urlParams.get('page') ? urlParams.get('page') : 1;
+    return parseInt(page);
   };
   var getPagination = function getPagination(meta, cb) {
     if (typeof meta === 'undefined') {
@@ -155,9 +154,9 @@
           }
 
           if (window.history.replaceState) {
-            var url = window.location.href.split('/page');
-            var urlF = (url[0] + '/page' + p).replace('//page', '/page');
-            window.history.replaceState("kenzap-cloud", document.title, urlF);
+            var str = window.location.search;
+            str = replaceQueryParam('page', p, str);
+            window.history.replaceState("kenzap-cloud", document.title, window.location.pathname + str);
           }
 
           if (ps != p) cb();
@@ -265,14 +264,6 @@
     html += '</ol>';
     document.querySelector(".bc").innerHTML = html;
   };
-  var simulateClick = function simulateClick(elem) {
-    var evt = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    !elem.dispatchEvent(evt);
-  };
   var onClick = function onClick(sel, fn) {
     if (document.querySelector(sel)) {
       var _iterator3 = _createForOfIteratorHelper(document.querySelectorAll(sel)),
@@ -310,6 +301,15 @@
     }
   };
 
+  var initHeader = function initHeader(response) {
+    if (response.header) localStorage.setItem('header', response.header);
+    var child = document.createElement('div');
+    child.innerHTML = localStorage.getItem('header');
+    child = child.firstChild;
+    document.body.prepend(child);
+    Function(document.querySelector("#k-script").innerHTML).call('test');
+    window.i18n.init(response.locale);
+  };
   var showLoader = function showLoader() {
     var el = document.querySelector(".loader");
     if (el) el.style.display = 'block';
@@ -326,21 +326,6 @@
     return "\n    <div class=\"container\">\n\n        <div class=\"d-flex justify-content-between bd-highlight mb-3\">\n            <nav class=\"bc\" aria-label=\"breadcrumb\"></nav>\n            <button class=\"btn btn-primary btn-add\" type=\"button\">".concat(__('Add product'), "</button>\n        </div>\n\n        <div class=\"row\">\n            <div class=\"col-md-12 grid-margin grid-margin-lg-0 grid-margin-md-0 stretch-card\">\n                <div class=\"card border-white shadow-sm\">\n                    <div class=\"card-body\">\n                        <div class=\"no-footer\">\n                            <div class=\"row\">\n                                <div class=\"col-sm-12\">\n                                    <div class=\"table-responsive\">\n                                        <table\n                                            class=\"table table-hover table-borderless align-middle table-striped table-p-list\"\n                                            style=\"min-width: 800px;\">\n                                            <thead>\n\n                                            </thead>\n                                            <tbody>\n\n                                            </tbody>\n                                        </table>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <div class=\"row\">\n                                <div class=\"col-sm-12 col-md-5\">\n                                    <div class=\"dataTables_info mt-3 text-secondary fw-lighter\" id=\"listing_info\"\n                                        role=\"status\" aria-live=\"polite\">&nbsp;</div>\n                                </div>\n                                <div class=\"col-sm-12 col-md-7\">\n                                    <div class=\"dataTables_paginate paging_simple_numbers mt-3\" id=\"listing_paginate\">\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    \n    <div class=\"modal\" tabindex=\"-1\">\n        <div class=\"modal-dialog\">\n            <div class=\"modal-content\">\n                <div class=\"modal-header\">\n                    <h5 class=\"modal-title\"></h5>\n                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n                </div>\n                <div class=\"modal-body\">\n\n                </div>\n                <div class=\"modal-footer\">\n                    <button type=\"button\" class=\"btn btn-primary btn-modal\"></button>\n                    <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\"></button>\n                </div>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"position-fixed bottom-0 p-2 m-4 end-0 align-items-center\">\n        <div class=\"toast hide align-items-center text-white bg-dark border-0\" role=\"alert\" aria-live=\"assertive\"\n            aria-atomic=\"true\" data-bs-delay=\"3000\">\n            <div class=\"d-flex\">\n                <div class=\"toast-body\"></div>\n                <button type=\"button\" class=\"btn-close btn-close-white me-2 m-auto\" data-bs-dismiss=\"toast\"\n                    aria-label=\"Close\"></button>\n            </div>\n        </div>\n    </div>\n    \n    ");
   };
 
-  var i18n = {
-    state: {
-      locale: null
-    },
-    init: function init(locale) {
-      i18n.state.locale = locale;
-    },
-    __: function __(text) {
-      if (i18n.state.locale.values[text] === undefined) return text;
-      return i18n.state.locale.values[text];
-    }
-  };
-
-  var __ = i18n.__;
-  var CDN = 'https://kenzap-sites.oss-ap-southeast-1.aliyuncs.com';
   var _this = {
     state: {
       firstLoad: true,
@@ -358,6 +343,7 @@
           'Accept': 'application/json',
           'Content-Type': 'text/plain',
           'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+          'Kenzap-Header': localStorage.hasOwnProperty('header'),
           'Kenzap-Token': getCookie('kenzap_token'),
           'Kenzap-Sid': getSiteId()
         },
@@ -395,13 +381,11 @@
         hideLoader();
 
         if (response.success) {
-          i18n.init(response.locale);
+          initHeader(response);
 
           _this.loadPageStructure();
 
           _this.renderPage(response);
-
-          _this.initHeader(response);
 
           _this.initListeners();
 
@@ -415,13 +399,6 @@
         }
       })["catch"](function (error) {
         console.error('Error:', error);
-      });
-    },
-    initHeader: function initHeader(response) {
-      onClick('.nav-back', function (e) {
-        e.preventDefault();
-        var link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-        simulateClick(link);
       });
     },
     authUser: function authUser(response) {

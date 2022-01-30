@@ -199,6 +199,15 @@
     }
   };
 
+  var initHeader = function initHeader(response) {
+    if (response.header) localStorage.setItem('header', response.header);
+    var child = document.createElement('div');
+    child.innerHTML = localStorage.getItem('header');
+    child = child.firstChild;
+    document.body.prepend(child);
+    Function(document.querySelector("#k-script").innerHTML).call('test');
+    window.i18n.init(response.locale);
+  };
   var showLoader = function showLoader() {
     var el = document.querySelector(".loader");
     if (el) el.style.display = 'block';
@@ -292,21 +301,6 @@
     return "\n  <div class=\"container p-edit\">\n    <div class=\"d-flex justify-content-between bd-highlight mb-3\">\n        <nav class=\"bc\" aria-label=\"breadcrumb\"></nav>\n        \n    </div>\n    <div class=\"row\">\n        <div class=\"col-lg-9 grid-margin grid-margin-lg-0 grid-margin-md-0 stretch-card\">\n            <div class=\"sections\" id=\"sections\" role=\"tablist\" style=\"width:100%;\">\n\n                <div class=\"row\">\n                    <div class=\"col-12 grid-margin stretch-card\">\n                        <div class=\"card border-white shadow-sm p-sm-3\">\n                            <div class=\"card-body\">\n\n                                <div class=\"landing_status\"></div>\n                                <input type=\"hidden\" class=\"form-control\" id=\"landing-slug\" value=\"\">\n\n                                <h4 id=\"elan\" class=\"card-title mb-4\">".concat(__('Description'), "</h4>\n\n                                <div id=\"placeholders\">\n\n                                    <div class=\"mb-3\">\n                                        <label class=\"banner-title-l form-label\" for=\"p-title\">").concat(__('Title'), "</label>\n                                        <input type=\"text\" class=\"form-control inp\" id=\"p-title\"\n                                            placeholder=\"").concat(__('Sushi set..'), "\">\n                                        <p class=\"form-text\"> </p>\n                                    </div>\n\n                                    <div class=\"mb-3\">\n                                        <label class=\"banner-descshort-l form-label\" for=\"p-sdesc\">").concat(__('Short Description'), "</label>\n                                        <textarea class=\"form-control inp\" id=\"p-sdesc\" placeholder=\"  \" maxlength=\"120\" rows=\"2\"></textarea>\n                                    </div>\n\n                                    <div class=\"mb-3\">\n                                        <label class=\"banner-descshort-l form-label\" for=\"desc\">").concat(__('Images'), "</label>\n                                        <div class=\"clearfix\"></div>\n                                        <div class=\"ic\"></div>\n                                        <div class=\"clearfix\"></div>\n                                    </div>\n\n                                    <div class=\"mb-3\">\n                                        <div class=\"clearfix\"></div>\n                                        <div style=\"clear:both;margin-top:16px;\"></div>\n                                        <label class=\"banner-descshort-l form-label\" for=\"p-desc\">").concat(__('Description'), "</label>\n                                        <textarea class=\"form-control inp\" id=\"p-ldesc\" placeholder=\" \" maxlength=\"2000\" rows=\"10\"></textarea>\n                                    </div>\n\n                                    <div class=\"mb-3 mw\">\n                                        <div class=\"list-wrapper\">\n                                            <ul class=\"d-flex flex-column-reverse features\"> </ul>\n                                        </div>\n                                        <p class=\"form-text\"> </p>\n                                    </div>\n\n                                    <div class=\"bg-light price_group mt-3 mb-3 p-4\">\n                                        <h4 class=\"card-title mb-3\">").concat(__('Price'), "</h4>\n                                        <div class=\"price_group_base\">\n                                            <div class=\"mb-3 mw\">\n                                                <div class=\"input-group\">\n\n                                                    <div id=\"p-price-c\">\n                                                        <label for=\"p-price\" class=\"form-label\">").concat(__('Price normal'), " <span class=\"lang\"></span></label>\n                                                        <div class=\"input-group\">\n                                                            <span class=\"input-group-text\">$</span>\n                                                            <input id=\"p-price\" type=\"text\" class=\"form-control inp\" placeholder=\"55.00\" autocomplete=\"off\">\n                                                        </div>\n                                                    </div>\n                                                    <div id=\"p-priced-c\">\n                                                        <label for=\"p-priced\" class=\"form-label\">").concat(__('Discounted'), " <span class=\"lang\"></span></label>\n                                                        <input id=\"p-priced\" type=\"text\" class=\"form-control inp\" placeholder=\"45.00\" autocomplete=\"off\">\n                                                    </div>\n\n                                                </div>\n                                                <div class=\"add-mix-ctn\"><a class=\"add-mix-block\" href=\"#\" data-action=\"add\">").concat(__('+ add variation'), "</a></div>\n                                            </div>\n\n                                            <div class=\"variation-blocks\">\n\n                                            </div>\n\n                                            <div style='margin:24px 0 48px;border-bottom:0px solid #ccc;'></div>\n\n                                            <div class=\"mb-3 mw\">\n                                                <h4 id=\"elan\" class=\"card-title\">").concat(__('Inventory'), "</h4>\n                                                <label for=\"p-sku\" class=\"form-label\"> <span class=\"lang\"></span></label>\n                                                <div class=\"input-group\">\n                                                    <input id=\"p-sku\" type=\"text\" style=\"width:100%;\" class=\"form-control inp\" placeholder=\"\" maxlength=\"200\">\n                                                    <p class=\"form-text\">\n                                                        Product stock unit identification number\n                                                    </p>\n                                                </div>\n                                            </div>\n\n                                        </div>\n                                    </div>\n                                </div>\n\n                                <div class=\"desc-repeater-cont\">\n\n                                </div>\n\n                                <p class=\"form-text\"> &nbsp;</p>\n\n                            </div>\n                        </div>\n                    </div>\n\n                </div>\n\n            </div>\n        </div>\n        <div class=\"col-lg-3 grid-margin grid-margin-lg-0 grid-margin-md-0\">\n\n            <div class=\"row\">\n                <div class=\"col-12 grid-margin stretch-card\">\n                    <div class=\"card border-white shadow-sm p-sm-3\">\n                        <div class=\"card-body\">\n\n                            <h4 class=\"card-title\" style=\"display:none;\">").concat(__('General'), "</h4>\n                            <div class=\"landing_status\"></div>\n                            <input type=\"hidden\" class=\"form-control\" id=\"landing-slug\" value=\"\">\n\n                            <h4 id=\"elan\" class=\"card-title mb-4\">Status</h4>\n                            <div id=\"status-cont\" class=\"mb-3\">\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-publish form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"\n                                                id=\"p-status1\" value=\"1\">\n                                                ").concat(__('Published'), "\n                                        </label>\n                                    </div>\n                                </div>\n\n                                <div class=\"col-sm-12\">\n                                    <div class=\"form-check\">\n                                        <label class=\"form-check-label status-draft form-label\">\n                                            <input type=\"radio\" class=\"form-check-input\" name=\"p-status\"  id=\"p-status0\" value=\"0\">\n                                            ").concat(__('Draft'), "\n                                        </label>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <h4 id=\"elan\" class=\"card-title mb-4\">Categories</h4>\n                            <div id=\"p-cats\" class=\"simple-tags mb-4\" data-simple-tags=\"\"></div>\n                            <div class=\"clearfix\"> </div>\n\n                            <div class=\"d-grid gap-2\">\n                                <button class=\"btn btn-primary btn-save\" type=\"button\">").concat(__('Save'), "</button>\n                            </div>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n\n        </div>\n    </div>\n  </div>\n\n  <div class=\"modal p-modal\" tabindex=\"-1\">\n    <div class=\"modal-dialog\">\n        <div class=\"modal-content\">\n            <div class=\"modal-header\">\n                <h5 class=\"modal-title\"></h5>\n                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n            </div>\n            <div class=\"modal-body\">\n\n            </div>\n            <div class=\"modal-footer\">\n                <button type=\"button\" class=\"btn btn-primary btn-modal\"></button>\n                <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\"></button>\n            </div>\n        </div>\n    </div>\n  </div>\n\n  <div class=\"position-fixed bottom-0 p-2 m-4 end-0 align-items-center\">\n    <div class=\"toast hide align-items-center text-white bg-dark border-0\" role=\"alert\" aria-live=\"assertive\"\n        aria-atomic=\"true\" data-bs-delay=\"3000\">\n        <div class=\"d-flex\">\n            <div class=\"toast-body\"></div>\n            <button type=\"button\" class=\"btn-close btn-close-white me-2 m-auto\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button>\n        </div>\n    </div>\n  </div>\n  ");
   };
 
-  var i18n = {
-    state: {
-      locale: null
-    },
-    init: function init(locale) {
-      i18n.state.locale = locale;
-    },
-    __: function __(text) {
-      if (i18n.state.locale.values[text] === undefined) return text;
-      return i18n.state.locale.values[text];
-    }
-  };
-
-  var __ = i18n.__;
-  var CDN = 'https://kenzap-sites.oss-ap-southeast-1.aliyuncs.com';
   var _this = {
     init: function init() {
       _this.getData();
@@ -324,6 +318,7 @@
           'Accept': 'application/json',
           'Content-Type': 'text/plain',
           'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+          'Kenzap-Header': localStorage.hasOwnProperty('header'),
           'Kenzap-Token': getCookie('kenzap_token'),
           'Kenzap-Sid': getSiteId()
         },
@@ -352,7 +347,7 @@
         hideLoader();
 
         if (response.success) {
-          i18n.init(response.locale);
+          initHeader(response);
           document.querySelector('#contents').innerHTML = HTMLContent(__);
 
           if (response.product.length == 0) {
@@ -362,8 +357,6 @@
           }
 
           _this.renderPage(response.product);
-
-          _this.initHeader(response);
 
           _this.loadImages(response.product);
 
@@ -419,14 +412,6 @@
       var pcats = document.querySelector('#p-cats');
       if (product.cats) pcats.setAttribute('data-simple-tags', product.cats);
       new simpleTags(pcats);
-    },
-    initHeader: function initHeader(response) {
-      onClick('.nav-back', function (e) {
-        e.preventDefault();
-        console.log('.nav-back');
-        var link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-        simulateClick(link);
-      });
     },
     initListeners: function initListeners() {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'partial';

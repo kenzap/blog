@@ -1,3 +1,12 @@
+#contents {
+  margin-top: 82px;
+}
+
+footer {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
 /* settings */
 .list-icon {
   color: #9b9b9b;
@@ -26,5 +35,3 @@
   border-radius: unset !important;
   object-fit: fill;
 }
-
-/*# sourceMappingURL=styles.css.map */

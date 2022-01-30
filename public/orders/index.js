@@ -164,14 +164,6 @@
     html += '</ol>';
     document.querySelector(".bc").innerHTML = html;
   };
-  var simulateClick = function simulateClick(elem) {
-    var evt = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    !elem.dispatchEvent(evt);
-  };
   var onClick = function onClick(sel, fn) {
     if (document.querySelector(sel)) {
       var _iterator3 = _createForOfIteratorHelper(document.querySelectorAll(sel)),
@@ -229,6 +221,15 @@
     return time;
   };
 
+  var initHeader = function initHeader(response) {
+    if (response.header) localStorage.setItem('header', response.header);
+    var child = document.createElement('div');
+    child.innerHTML = localStorage.getItem('header');
+    child = child.firstChild;
+    document.body.prepend(child);
+    Function(document.querySelector("#k-script").innerHTML).call('test');
+    window.i18n.init(response.locale);
+  };
   var showLoader = function showLoader() {
     var el = document.querySelector(".loader");
     if (el) el.style.display = 'block';
@@ -245,20 +246,6 @@
     return "\n      <div class=\"container ec-orders\">\n        <div class=\"d-flex justify-content-between bd-highlight mb-3\">\n            <nav class=\"bc\" aria-label=\"breadcrumb\"></nav>\n        </div>\n        <div class=\"row\">\n          <div class=\"col-md-12 page-title\">\n            <div class=\"st-opts st-table mb-3 dropdown\">\n                <a class=\"btn btn-primary dropdown-toggle\" href=\"#\" role=\"button\" id=\"order-status\" data-id=\"status\" data-value=\"\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\">\n                  All\n                </a>\n                <ul class=\"dropdown-menu\" aria-labelledby=\"order-status\">\n                  <li><a class=\"dppi dropdown-item\" data-key=\"\" href=\"#\" >All</a></li>\n                  <li><a class=\"dppi dropdown-item\" data-key=\"new\" href=\"#\" >New</a></li>\n                  <li><a class=\"dppi dropdown-item\" data-key=\"processing\" href=\"#\" >Processing</a></li>\n                  <li><a class=\"dppi dropdown-item\" data-key=\"completed\" href=\"#\" >Completed</a></li>\n                  <li><a class=\"dppi dropdown-item\" data-key=\"canceled\" href=\"#\" >Canceled</a></li>\n                  <li><a class=\"dppi dropdown-item\" data-key=\"failed\" href=\"#\" >Failed</a></li>\n                </ul>\n            </div>\n            <div class=\"st-opts\" >\n              <div class=\"input-group-sm mb-0 justify-content-start\" >\n                <input id=\"usearch\" type=\"text\" class=\"inp form-control search-input\" placeholder=\"".concat(__('Search order'), "\">\n              </div>\n              <!-- <a id=\"viewSum\" href=\"#\" style=\"margin-left:16px;\">view summary</a> -->\n            </div>\n          </div>\n        </div>\n\n        <div class=\"row\">\n          <div class=\"col-md-12 grid-margin grid-margin-lg-0 grid-margin-md-0 stretch-card\">\n            <div class=\"card border-white shadow-sm\">\n              <div class=\"card-body\">\n \n                <div class=\"table-responsive\">\n                  <table class=\"table table-hover table-borderless align-middle table-striped table-p-list\">\n                    <thead>\n                      <tr>\n\n                        <th>From</th>\n                        <th>Status</th>\n                        <th>Total</th>\n                        <th>Time</th>\n                        <th></th>\n                      </tr>\n                    </thead>\n                    <tbody class=\"list\">\n\n                    </tbody>\n                  </table>\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"modal order-modal\" tabindex=\"-1\">\n        <div class=\"modal-dialog \">\n          <div class=\"modal-content\">\n              <div class=\"modal-header\">\n                <h5 class=\"modal-title\"></h5>\n                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n              </div>\n              <div class=\"modal-body\">\n              \n              </div>\n              <div class=\"modal-footer\">\n                <button type=\"button\" class=\"btn btn-primary\"></button>\n                <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\"></button>\n              </div>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"position-fixed bottom-0 p-sm-2 m-sm-4 end-0 align-items-center\" >   \n        <div class=\"toast hide align-items-center text-white bg-dark border-0\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\" data-bs-delay=\"3000\">\n          <div class=\"d-flex\">  \n            <div class=\"toast-body\"></div>\n            <button type=\"button\" class=\"btn-close btn-close-white me-2 m-auto\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button>\n          </div>\n        </div>\n      </div>\n    ");
   };
 
-  var i18n = {
-    state: {
-      locale: null
-    },
-    init: function init(locale) {
-      i18n.state.locale = locale;
-    },
-    __: function __(text) {
-      if (i18n.state.locale.values[text] === undefined) return text;
-      return i18n.state.locale.values[text];
-    }
-  };
-
-  var __ = i18n.__;
   var _this = {
     state: {
       firstLoad: true,
@@ -290,6 +277,7 @@
           'Accept': 'application/json',
           'Content-Type': 'text/plain',
           'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+          'Kenzap-Header': localStorage.hasOwnProperty('header'),
           'Kenzap-Token': getCookie('kenzap_token'),
           'Kenzap-Sid': getSiteId()
         },
@@ -327,13 +315,11 @@
         hideLoader();
 
         if (response.success) {
-          i18n.init(response.locale);
+          initHeader(response);
 
           _this.loadPageStructure();
 
           _this.renderPage(response);
-
-          _this.initHeader(response);
 
           _this.initListeners();
 
@@ -345,13 +331,6 @@
         }
       })["catch"](function (error) {
         console.error('Error:', error);
-      });
-    },
-    initHeader: function initHeader(response) {
-      onClick('.nav-back', function (e) {
-        e.preventDefault();
-        var link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-        simulateClick(link);
       });
     },
     authUser: function authUser(response) {

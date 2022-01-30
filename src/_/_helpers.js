@@ -30,7 +30,15 @@ export const getProductIdFromLink = () => {
     return id;
 }
 
-export const getPageNumber = () => {
+export const replaceQueryParam = (param, newval, search) => {
+
+    let regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
+    let query = search.replace(regex, "$1").replace(/&$/, '');
+
+    return (query.length > 2 ? query + "&" : "?") + (newval ? param + "=" + newval : '');
+}
+
+export const getPageNumberOld = () => {
 
     let url = window.location.href.split('/');
     let page = url[url.length-1];
@@ -40,6 +48,14 @@ export const getPageNumber = () => {
     }
     // console.log(pageN);
     return parseInt(pageN);
+}
+
+export const getPageNumber = () => {
+
+    let urlParams = new URLSearchParams(window.location.search);
+    let page = urlParams.get('page') ? urlParams.get('page') : 1;
+
+    return parseInt(page);
 }
 
 export const getPagination = (meta, cb) => {
@@ -95,11 +111,15 @@ export const getPagination = (meta, cb) => {
             // update url
             if (window.history.replaceState) {
 
-                let url = window.location.href.split('/page');
-                let urlF = (url[0]+'/page'+p).replace('//page', '/page');
+                // let url = window.location.href.split('/page');
+                // let urlF = (url[0]+'/page'+p).replace('//page', '/page');
+
+                let str = window.location.search;
+                str = replaceQueryParam('page', p, str);
+                // window.location = window.location.pathname + str
 
                 // prevents browser from storing history with each change:
-                window.history.replaceState("kenzap-cloud", document.title, urlF);
+                window.history.replaceState("kenzap-cloud", document.title, window.location.pathname + str);
             }
 
             // only refresh if page differs

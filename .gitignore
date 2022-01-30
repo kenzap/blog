@@ -8,6 +8,9 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 
+# readme txt
+readme.txt
+
 # Optional npm cache directory
 .npm
 

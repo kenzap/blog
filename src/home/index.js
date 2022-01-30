@@ -1,13 +1,13 @@
 // js dependencies
 import { getSiteId, simulateClick, getCookie, parseApiError, onClick, initBreadcrumbs, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, initFooter } from "../_/_ui.js"
+import { showLoader, hideLoader, initHeader, initFooter } from "../_/_ui.js"
 import { HTMLContent } from "../_/_cnt_home.js"
-import { i18n } from "../_/_i18n.js"
-  
-// references
-const __ = i18n.__;
 
-const CDN = 'https://kenzap-sites.oss-ap-southeast-1.aliyuncs.com';
+// import { i18n } from "../_/_i18n.js"
+// references
+// const __ = i18n.__;
+
+// const CDN = 'https://kenzap-sites.oss-ap-southeast-1.aliyuncs.com';
 
 // where everything happens
 const _this = {
@@ -32,6 +32,7 @@ const _this = {
                 'Accept': 'application/json',
                 'Content-Type': 'text/plain',
                 'Authorization': 'Bearer ' + getCookie('kenzap_api_key'),
+                'Kenzap-Header': localStorage.hasOwnProperty('header'),
                 'Kenzap-Token': getCookie('kenzap_token'),
                 'Kenzap-Sid': getSiteId(),
             },
@@ -52,8 +53,11 @@ const _this = {
 
             if(response.success){
 
+                // init header
+                initHeader(response);
+
                 // initiate locale
-                i18n.init(response.locale);
+                // i18n.init(response.locale);
 
                 // get core html content 
                 _this.loadHomeStructure();  
@@ -62,7 +66,7 @@ const _this = {
                 _this.renderPage(response);
 
                 // init header
-                _this.initHeader(response);
+                // _this.initHeader(response);
 
                 // bind content listeners
                 // _this.initListeners();
@@ -89,21 +93,21 @@ const _this = {
         // initiate breadcrumbs
         initBreadcrumbs(
             [
-                { link: link('//dashboard.kenzap.cloud'), text: __('Dashboard') },
+                { link: link('/'), text: __('Dashboard') },
                 { text: __('E-commerce') },
             ]
         );
     },
-    initHeader: (response) => {
+    // initHeader: (response) => {
 
-        onClick('.nav-back', (e) => {
+    //     onClick('.nav-back', (e) => {
 
-            e.preventDefault();
-            console.log('.nav-back');
-            let link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-            simulateClick(link);
-        });
-    },
+    //         e.preventDefault();
+    //         console.log('.nav-back');
+    //         let link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
+    //         simulateClick(link);
+    //     });
+    // },
     initListeners: (type = 'partial') => {
 
         console.log('initListeners ');

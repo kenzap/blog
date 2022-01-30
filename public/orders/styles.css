@@ -1,3 +1,12 @@
+#contents {
+  margin-top: 82px;
+}
+
+footer {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
 /* orders */
 .table {
   min-width: 760px;
@@ -142,5 +151,3 @@ table.items .vars:empty {
 .modal-dialog-wide .modal-header {
   border: 0;
 }
-
-/*# sourceMappingURL=styles.css.map */

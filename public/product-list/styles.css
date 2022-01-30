@@ -1,3 +1,12 @@
+#contents {
+  margin-top: 82px;
+}
+
+footer {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
 /* product list */
 .table-p-list thead tr th:nth-child(1) {
   width: 44px;
@@ -23,5 +32,3 @@
   position: relative;
   min-height: 28px;
 }
-
-/*# sourceMappingURL=styles.css.map */
