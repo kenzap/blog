@@ -93,7 +93,7 @@ const _this = {
         // initiate breadcrumbs
         initBreadcrumbs(
             [
-                { link: link('/'), text: __('Dashboard') },
+                { link: link('https://dashboard.kenzap.cloud'), text: __('Dashboard') },
                 { text: __('E-commerce') },
             ]
         );
