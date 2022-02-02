@@ -17,7 +17,7 @@ git switch dev && git add . && git commit  -m "fixing breadcrumb navigation issu
 # push to Kenzap Cloud from GitHub
 wget -q https://push.kenzap.cloud/kenzap/ecommerce/
 
-# Github dev -> main
+# Github dev - > main
 git checkout main
 git merge dev
 git push origin main
