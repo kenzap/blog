@@ -16,3 +16,8 @@ eval `ssh-agent -s`; ssh-add ~/.ssh/id_rsa_github_pavel; git push -f origin dev
 
 # push to Kenzap Cloud from GitHub
 wget -q https://push.kenzap.cloud/kenzap/ecommerce/
+
+# Github dev -> main
+git checkout main
+git merge dev
+git push origin main
