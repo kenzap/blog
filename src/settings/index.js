@@ -5,7 +5,7 @@ import { HTMLContent } from "../_/_cnt_settings.js"
 
 // where everything happens
 const _this = {
-  
+   
     state:{
         firstLoad: true,
         limit: 10, // number of records to load per table

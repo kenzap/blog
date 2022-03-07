@@ -163,13 +163,13 @@ const bundles = scriptPaths.map((key) => {
 			exclude: "node_modules/**",
 			comments: false,
 		}),   
-		copy({
-			targets: [
-				{ src: ['public/home/*'], dest: 'public' },
-				// { src: ['src/**/*', '!src/_/*'], dest: 'public' },
-			],
-			// flatten: false
-		}),
+		// copy({
+		// 	targets: [
+		// 		{ src: ['public/home/*'], dest: 'public' },
+		// 		// { src: ['src/**/*', '!src/_/*'], dest: 'public' },
+		// 	],
+		// 	// flatten: false
+		// }),
 		// createIndexes(key),
 	]
 
@@ -183,13 +183,15 @@ const bundles = scriptPaths.map((key) => {
 		plugins.push(
 			livereload({
 				watch: [ 
-				path.resolve(__dirname, 'public'),
+					path.resolve(__dirname, 'public'),
 				],
 				delay: 500,
 				exts: [ 'html', 'js', 'scss', 'sass', 'css' ]
 			})
 		)
 	}
+
+	plugins.push(terserPlugin)
 
 	return {
 		input: scriptInputs[key],
