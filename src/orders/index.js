@@ -1,5 +1,6 @@
 // js dependencies
-import { getSiteId, simulateClick, getCookie, initBreadcrumbs, parseApiError, timeConverterAgo, formatPrice, onClick, onKeyUp, link } from "../_/_helpers.js"
+import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onKeyUp, getSiteId, toast, link } from '@kenzap/k-cloud';
+import {timeConverterAgo, formatPrice } from "../_/_helpers.js"
 import { showLoader, hideLoader, initHeader, initFooter } from "../_/_ui.js"
 import { HTMLContent } from "../_/_cnt_orders.js"
 
@@ -489,8 +490,7 @@ const _this = {
                     osm.classList.add(key);
                 });    
 
-                // let link = document.querySelector('.bc ol li:nth-last-child(2)').querySelector('a');
-                // simulateClick(link);
+
             });
         },
         removeOrder: (e) => {

@@ -149,7 +149,8 @@ export const HTMLContent = (__) => {
                           <label class="col-sm-3 col-form-label">${ __('Currency') }</label>
                           <div class="col-sm-9">
                             <select id="currency" class="form-control inp" name="currency" data-type="select">
-                              <?php include('inc/select-currencies.php'); ?>
+                              
+                            
                             </select>
                           </div>
                         </div>

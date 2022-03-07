@@ -1,6 +1,6 @@
 // js dependencies
-import { getSiteId, simulateClick, getCookie, initBreadcrumbs, parseApiError, onClick, onKeyUp, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, initHeader, initFooter } from "../_/_ui.js"
+import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onKeyUp, simulateClick, getSiteId, toast, link } from '@kenzap/k-cloud';
+import { getCurrencies } from "../_/_helpers.js"
 import { HTMLContent } from "../_/_cnt_settings.js"
 
 // where everything happens
@@ -117,6 +117,14 @@ const _this = {
                 ]
             );
         }
+
+        // setup currencies
+        let coptions = '<option value="">'+__('Choose currency')+'</option>';
+        for (let c of getCurrencies()){
+
+            coptions += `<option value="${ c.code }">${ __(c.name) } (${ __(c.code) })</option>`;
+        }
+        document.querySelector("#currency").innerHTML = coptions;
 
         // populate fields
         for (let field in response.settings){

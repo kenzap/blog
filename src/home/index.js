@@ -1,13 +1,6 @@
 // js dependencies
-import { getSiteId, simulateClick, getCookie, parseApiError, onClick, initBreadcrumbs, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, initHeader, initFooter } from "../_/_ui.js"
+import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, getSiteId, toast, link } from '@kenzap/k-cloud';
 import { HTMLContent } from "../_/_cnt_home.js"
-
-// import { i18n } from "../_/_i18n.js"
-// references
-// const __ = i18n.__;
-
-// const CDN = 'https://kenzap-sites.oss-ap-southeast-1.aliyuncs.com';
 
 // where everything happens
 const _this = {

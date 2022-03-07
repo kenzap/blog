@@ -1,6 +1,7 @@
 // js dependencies
-import { getSiteId, getProductId, simulateClick, getCookie, parseApiError, onClick, onChange, formatPrice, initBreadcrumbs, link } from "../_/_helpers.js"
-import { showLoader, hideLoader, simpleTags, initHeader, initFooter } from "../_/_ui.js"
+import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onChange, simulateClick, getSiteId, toast, link } from '@kenzap/k-cloud';
+import { getProductId, formatPrice } from "../_/_helpers.js"
+import { simpleTags } from "../_/_ui.js"
 import { HTMLContent } from "../_/_cnt_product_edit.js"
 
 // where everything happens

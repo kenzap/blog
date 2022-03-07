@@ -3,166 +3,180 @@
 (function () {
   'use strict';
 
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
+  /**
+   * @name initHeader
+   * @description Initiates Kenzap Cloud extension header and related scripts. Verifies user sessions, handles SSO, does cloud space navigation, initializes i18n localization. 
+   * @param {object} response
+   */
+  const initHeader = (response) => {
 
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
-
-  function _createForOfIteratorHelper(o, allowArrayLike) {
-    var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-
-    if (!it) {
-      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-        if (it) o = it;
-        var i = 0;
-
-        var F = function () {};
-
-        return {
-          s: F,
-          n: function () {
-            if (i >= o.length) return {
-              done: true
-            };
-            return {
-              done: false,
-              value: o[i++]
-            };
-          },
-          e: function (e) {
-            throw e;
-          },
-          f: F
-        };
+      // cache header from backend
+      if(response.header) localStorage.setItem('header', response.header);
+    
+      // load header to html if not present
+      if(!document.querySelector("#k-script")){
+    
+          let child = document.createElement('div');
+          child.innerHTML = localStorage.getItem('header');
+          child = child.firstChild;
+          document.body.prepend(child);
+    
+          // run header scripts
+          Function(document.querySelector("#k-script").innerHTML).call('test');
       }
+    
+      // load locales if present
+      if(response.locale) window.i18n.init(response.locale); 
+  };
 
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
+  /**
+   * @name showLoader
+   * @description Initiates full screen three dots loader.
+   */
+  const showLoader = () => {
 
-    var normalCompletion = true,
-        didErr = false,
-        err;
-    return {
-      s: function () {
-        it = it.call(o);
-      },
-      n: function () {
-        var step = it.next();
-        normalCompletion = step.done;
-        return step;
-      },
-      e: function (e) {
-        didErr = true;
-        err = e;
-      },
-      f: function () {
-        try {
-          if (!normalCompletion && it.return != null) it.return();
-        } finally {
-          if (didErr) throw err;
-        }
+      let el = document.querySelector(".loader");
+      if (el) el.style.display = 'block';
+  };
+
+  /**
+   * @name hideLoader
+   * @description Removes full screen three dots loader.
+   */
+  const hideLoader = () => {
+
+      let el = document.querySelector(".loader");
+      if (el) el.style.display = 'none';
+  };
+
+  /**
+   * @name initFooter
+   * @description Removes full screen three dots loader.
+   * @param {string} left - Text or html code to be present on the left bottom side of screen
+   * @param {string} right - Text or html code to be present on the left bottom side of screen
+   */
+  const initFooter = (left, right) => {
+
+      document.querySelector("footer .row").innerHTML = `
+    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">${left}</span>
+        <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center text-muted">${right}</span>
+    </div>`;
+  };
+
+  /**
+   * @name link
+   * @description Handles Cloud navigation links between extensions and its pages. Takes care of custom url parameters.
+   * @param {string} slug - Any inbound link
+   * 
+   * @returns {string} link - Returns original link with kenzp cloud space ID identifier.
+   */
+  const link$1 = (slug) => {
+      
+      let urlParams = new URLSearchParams(window.location.search);
+      let sid = urlParams.get('sid') ? urlParams.get('sid') : "";
+
+      let postfix = slug.indexOf('?') == -1 ? '?sid='+sid : '&sid='+sid;
+
+      return slug + postfix;
+  };
+
+  /**
+   * @name getSiteId
+   * @description Gets current Kenzap Cloud space ID identifier from the URL.
+   * 
+   * @returns {string} id - Kenzap Cloud space ID.
+   */
+  const getSiteId = () => {
+      
+      let urlParams = new URLSearchParams(window.location.search);
+      let id = urlParams.get('sid') ? urlParams.get('sid') : "";
+
+      return id;
+  };
+
+  /**
+   * @name getCookie
+   * @description Read cookie by its name.
+   * @param {string} cname - Cookie name.
+   * 
+   * @returns {string} value - Cookie value.
+   */
+  const getCookie = (cname) => {
+
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
       }
-    };
-  }
+      return "";
+  };
+
+  /**
+   * @name parseApiError
+   * @description Set default logics for different API Error responses.
+   * @param {object} object - API response.
+   */
+  const parseApiError = (data) => {
+   
+      switch(data.code){
+
+          // unauthorized
+          case 401:
+
+              // dev mode
+              if(window.location.href.indexOf('localhost')){ 
+
+                  alert(data.reason); 
+                  return; 
+              }
+
+              // production mode
+              location.href="https://auth.kenzap.com/?app=65432108792785&redirect="+window.location.href; break;
+          
+          // something else
+          default:
+
+              alert(data.reason); 
+              break;
+      }
+  };
+
+  /**
+   * @name initBreadcrumbs
+   * @description Render ui breadcrumbs.
+   * @param {array} data - List of link objects containing link text and url. If url is missing then renders breadcrumb as static text. Requires html holder with .bc class.
+   */
+  const initBreadcrumbs = (data) => {
+
+      let html = '<ol class="breadcrumb mt-2 mb-0">';
+      for(let bc of data){
+          
+          if(typeof(bc.link) === 'undefined'){
+
+              html += `<li class="breadcrumb-item">${ bc.text }</li>`;
+          }else {
+
+              html += `<li class="breadcrumb-item"><a href="${ bc.link }">${ bc.text }</a></li>`;
+          }
+      }
+      html += '</ol>';
+      
+      document.querySelector(".bc").innerHTML = html;
+  };
 
   var link = function link(slug) {
     var urlParams = new URLSearchParams(window.location.search);
     var sid = urlParams.get('sid') ? urlParams.get('sid') : "";
     var postfix = slug.indexOf('?') == -1 ? '?sid=' + sid : '&sid=' + sid;
     return slug + postfix;
-  };
-  var getSiteId = function getSiteId() {
-    var urlParams = new URLSearchParams(window.location.search);
-    var id = urlParams.get('sid') ? urlParams.get('sid') : "";
-    return id;
-  };
-  var getCookie = function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-
-    return "";
-  };
-  var parseApiError = function parseApiError(data) {
-    switch (data.code) {
-      default:
-        alert(data.reason);
-        break;
-    }
-  };
-  var initBreadcrumbs = function initBreadcrumbs(data) {
-    var html = '<ol class="breadcrumb mt-2 mb-0">';
-
-    var _iterator2 = _createForOfIteratorHelper(data),
-        _step2;
-
-    try {
-      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-        var bc = _step2.value;
-
-        if (typeof bc.link === 'undefined') {
-          html += "<li class=\"breadcrumb-item\">".concat(bc.text, "</li>");
-        } else {
-          html += "<li class=\"breadcrumb-item\"><a href=\"".concat(bc.link, "\">").concat(bc.text, "</a></li>");
-        }
-      }
-    } catch (err) {
-      _iterator2.e(err);
-    } finally {
-      _iterator2.f();
-    }
-
-    html += '</ol>';
-    document.querySelector(".bc").innerHTML = html;
-  };
-
-  var initHeader = function initHeader(response) {
-    if (response.header) localStorage.setItem('header', response.header);
-
-    if (!document.querySelector("#k-script")) {
-      var child = document.createElement('div');
-      child.innerHTML = localStorage.getItem('header');
-      child = child.firstChild;
-      document.body.prepend(child);
-      Function(document.querySelector("#k-script").innerHTML).call('test');
-    }
-
-    if (response.locale) window.i18n.init(response.locale);
-  };
-  var showLoader = function showLoader() {
-    var el = document.querySelector(".loader");
-    if (el) el.style.display = 'block';
-  };
-  var hideLoader = function hideLoader() {
-    var el = document.querySelector(".loader");
-    if (el) el.style.display = 'none';
-  };
-  var initFooter = function initFooter(left, right) {
-    document.querySelector("footer .row").innerHTML = "\n    <div class=\"d-sm-flex justify-content-center justify-content-sm-between\">\n        <span class=\"text-muted text-center text-sm-left d-block d-sm-inline-block\">".concat(left, "</span>\n        <span class=\"float-none float-sm-right d-block mt-1 mt-sm-0 text-center text-muted\">").concat(right, "</span>\n    </div>");
   };
 
   var HTMLContent = function HTMLContent(__) {
@@ -221,7 +235,7 @@
     },
     renderPage: function renderPage(product) {
       initBreadcrumbs([{
-        link: link('https://dashboard.kenzap.cloud'),
+        link: link$1('https://dashboard.kenzap.cloud'),
         text: __('Dashboard')
       }, {
         text: __('E-commerce')
