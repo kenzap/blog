@@ -1,5 +1,5 @@
 // js dependencies
-import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, getSiteId, toast, link } from '@kenzap/k-cloud';
+import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, getSiteId, link } from '@kenzap/k-cloud';
 import { HTMLContent } from "../_/_cnt_home.js"
 
 // where everything happens
@@ -103,18 +103,6 @@ const _this = {
     // },
     initListeners: (type = 'partial') => {
 
-        console.log('initListeners ');
-
-        // listeners that can be initiated only once
-        if(type == 'all'){
-
-            // // product save button
-            // onClick('.btn-save', _this.listeners.saveProduct);
-            
-            // // modal success button
-            // onClick('.p-modal .btn-primary', _this.listeners.modalSuccessBtn);
-        }
-
 
 
     },
@@ -123,7 +111,6 @@ const _this = {
 
         modalSuccessBtn: (e) => {
             
-            console.log('calling modalSuccessBtnFunc');
             _this.listeners.modalSuccessBtnFunc(e);
         },
 

@@ -1,4 +1,4 @@
-import { link } from "../_/_helpers.js"
+import { link } from '@kenzap/k-cloud';
 
 export const HTMLContent = (__) => {
  

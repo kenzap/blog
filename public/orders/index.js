@@ -92,17 +92,205 @@
     };
   }
 
-  var link = function link(slug) {
-    var urlParams = new URLSearchParams(window.location.search);
-    var sid = urlParams.get('sid') ? urlParams.get('sid') : "";
-    var postfix = slug.indexOf('?') == -1 ? '?sid=' + sid : '&sid=' + sid;
-    return slug + postfix;
+  /**
+   * @name initHeader
+   * @description Initiates Kenzap Cloud extension header and related scripts. Verifies user sessions, handles SSO, does cloud space navigation, initializes i18n localization. 
+   * @param {object} response
+   */
+  const initHeader = (response) => {
+
+      // cache header from backend
+      if(response.header) localStorage.setItem('header', response.header);
+    
+      // load header to html if not present
+      if(!document.querySelector("#k-script")){
+    
+          let child = document.createElement('div');
+          child.innerHTML = localStorage.getItem('header');
+          child = child.firstChild;
+          document.body.prepend(child);
+    
+          // run header scripts
+          Function(document.querySelector("#k-script").innerHTML).call('test');
+      }
+    
+      // load locales if present
+      if(response.locale) window.i18n.init(response.locale); 
   };
-  var getSiteId = function getSiteId() {
-    var urlParams = new URLSearchParams(window.location.search);
-    var id = urlParams.get('sid') ? urlParams.get('sid') : "";
-    return id;
+
+  /**
+   * @name showLoader
+   * @description Initiates full screen three dots loader.
+   */
+  const showLoader = () => {
+
+      let el = document.querySelector(".loader");
+      if (el) el.style.display = 'block';
   };
+
+  /**
+   * @name hideLoader
+   * @description Removes full screen three dots loader.
+   */
+  const hideLoader = () => {
+
+      let el = document.querySelector(".loader");
+      if (el) el.style.display = 'none';
+  };
+
+  /**
+   * @name initFooter
+   * @description Removes full screen three dots loader.
+   * @param {string} left - Text or html code to be present on the left bottom side of screen
+   * @param {string} right - Text or html code to be present on the left bottom side of screen
+   */
+  const initFooter = (left, right) => {
+
+      document.querySelector("footer .row").innerHTML = `
+    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">${left}</span>
+        <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center text-muted">${right}</span>
+    </div>`;
+  };
+
+  /**
+   * @name link
+   * @description Handles Cloud navigation links between extensions and its pages. Takes care of custom url parameters.
+   * @param {string} slug - Any inbound link
+   * 
+   * @returns {string} link - Returns original link with kenzp cloud space ID identifier.
+   */
+  const link = (slug) => {
+      
+      let urlParams = new URLSearchParams(window.location.search);
+      let sid = urlParams.get('sid') ? urlParams.get('sid') : "";
+
+      let postfix = slug.indexOf('?') == -1 ? '?sid='+sid : '&sid='+sid;
+
+      return slug + postfix;
+  };
+
+  /**
+   * @name getSiteId
+   * @description Gets current Kenzap Cloud space ID identifier from the URL.
+   * 
+   * @returns {string} id - Kenzap Cloud space ID.
+   */
+  const getSiteId = () => {
+      
+      let urlParams = new URLSearchParams(window.location.search);
+      let id = urlParams.get('sid') ? urlParams.get('sid') : "";
+
+      return id;
+  };
+
+  /**
+   * @name getCookie
+   * @description Read cookie by its name.
+   * @param {string} cname - Cookie name.
+   * 
+   * @returns {string} value - Cookie value.
+   */
+  const getCookie = (cname) => {
+
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+  };
+
+  /**
+   * @name parseApiError
+   * @description Set default logics for different API Error responses.
+   * @param {object} object - API response.
+   */
+  const parseApiError = (data) => {
+   
+      switch(data.code){
+
+          // unauthorized
+          case 401:
+
+              // dev mode
+              if(window.location.href.indexOf('localhost')){ 
+
+                  alert(data.reason); 
+                  return; 
+              }
+
+              // production mode
+              location.href="https://auth.kenzap.com/?app=65432108792785&redirect="+window.location.href; break;
+          
+          // something else
+          default:
+
+              alert(data.reason); 
+              break;
+      }
+  };
+
+  /**
+   * @name initBreadcrumbs
+   * @description Render ui breadcrumbs.
+   * @param {array} data - List of link objects containing link text and url. If url is missing then renders breadcrumb as static text. Requires html holder with .bc class.
+   */
+  const initBreadcrumbs = (data) => {
+
+      let html = '<ol class="breadcrumb mt-2 mb-0">';
+      for(let bc of data){
+          
+          if(typeof(bc.link) === 'undefined'){
+
+              html += `<li class="breadcrumb-item">${ bc.text }</li>`;
+          }else {
+
+              html += `<li class="breadcrumb-item"><a href="${ bc.link }">${ bc.text }</a></li>`;
+          }
+      }
+      html += '</ol>';
+      
+      document.querySelector(".bc").innerHTML = html;
+  };
+
+  /**
+   * @name onClick
+   * @description One row click event listener declaration. Works with one or many HTML selectors.
+   * @param {string} sel - HTML selector, id, class, etc.
+   * @param {string} fn - callback function fired on click event.
+   */
+  const onClick = (sel, fn) => {
+
+      if(document.querySelector(sel)) for( let e of document.querySelectorAll(sel) ){
+
+          e.removeEventListener('click', fn, true);
+          e.addEventListener('click', fn, true);
+      }
+  };
+
+  /**
+   * @name onKeyUp
+   * @description One row key up event listener declaration. Works with one or many HTML selectors.
+   * @param {string} sel - HTML selector, id, class, etc.
+   * @param {string} fn - callback function fired on click event.
+   */
+  const onKeyUp = (sel, fn) => {
+
+      if(document.querySelector(sel)) for( let e of document.querySelectorAll(sel) ){
+
+          e.removeEventListener('keyup', fn, true);
+          e.addEventListener('keyup', fn, true);
+      }
+  };
+
   var formatPrice = function formatPrice(price) {
     var formatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -112,93 +300,6 @@
     price = parseFloat(price);
     price = formatter.format(price);
     return price;
-  };
-  var getCookie = function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-
-    return "";
-  };
-  var parseApiError = function parseApiError(data) {
-    switch (data.code) {
-      default:
-        alert(data.reason);
-        break;
-    }
-  };
-  var initBreadcrumbs = function initBreadcrumbs(data) {
-    var html = '<ol class="breadcrumb mt-2 mb-0">';
-
-    var _iterator2 = _createForOfIteratorHelper(data),
-        _step2;
-
-    try {
-      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-        var bc = _step2.value;
-
-        if (typeof bc.link === 'undefined') {
-          html += "<li class=\"breadcrumb-item\">".concat(bc.text, "</li>");
-        } else {
-          html += "<li class=\"breadcrumb-item\"><a href=\"".concat(bc.link, "\">").concat(bc.text, "</a></li>");
-        }
-      }
-    } catch (err) {
-      _iterator2.e(err);
-    } finally {
-      _iterator2.f();
-    }
-
-    html += '</ol>';
-    document.querySelector(".bc").innerHTML = html;
-  };
-  var onClick = function onClick(sel, fn) {
-    if (document.querySelector(sel)) {
-      var _iterator3 = _createForOfIteratorHelper(document.querySelectorAll(sel)),
-          _step3;
-
-      try {
-        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-          var e = _step3.value;
-          e.removeEventListener('click', fn, true);
-          e.addEventListener('click', fn, true);
-        }
-      } catch (err) {
-        _iterator3.e(err);
-      } finally {
-        _iterator3.f();
-      }
-    }
-  };
-  var onKeyUp = function onKeyUp(sel, fn) {
-    if (document.querySelector(sel)) {
-      var _iterator4 = _createForOfIteratorHelper(document.querySelectorAll(sel)),
-          _step4;
-
-      try {
-        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-          var e = _step4.value;
-          e.removeEventListener('keyup', fn, true);
-          e.addEventListener('keyup', fn, true);
-        }
-      } catch (err) {
-        _iterator4.e(err);
-      } finally {
-        _iterator4.f();
-      }
-    }
   };
   var timeConverterAgo = function timeConverterAgo(now, time) {
     console.log(now + " " + time);
@@ -219,31 +320,6 @@
     a.getSeconds();
     var time = date + ' ' + month + ' ' + year;
     return time;
-  };
-
-  var initHeader = function initHeader(response) {
-    if (response.header) localStorage.setItem('header', response.header);
-
-    if (!document.querySelector("#k-script")) {
-      var child = document.createElement('div');
-      child.innerHTML = localStorage.getItem('header');
-      child = child.firstChild;
-      document.body.prepend(child);
-      Function(document.querySelector("#k-script").innerHTML).call('test');
-    }
-
-    if (response.locale) window.i18n.init(response.locale);
-  };
-  var showLoader = function showLoader() {
-    var el = document.querySelector(".loader");
-    if (el) el.style.display = 'block';
-  };
-  var hideLoader = function hideLoader() {
-    var el = document.querySelector(".loader");
-    if (el) el.style.display = 'none';
-  };
-  var initFooter = function initFooter(left, right) {
-    document.querySelector("footer .row").innerHTML = "\n    <div class=\"d-sm-flex justify-content-center justify-content-sm-between\">\n        <span class=\"text-muted text-center text-sm-left d-block d-sm-inline-block\">".concat(left, "</span>\n        <span class=\"float-none float-sm-right d-block mt-1 mt-sm-0 text-center text-muted\">").concat(right, "</span>\n    </div>");
   };
 
   var HTMLContent = function HTMLContent(__) {
@@ -803,9 +879,11 @@
         return response.json();
       }).then(function (response) {
         if (response.success) {
-          var toast = new bootstrap.Toast(document.querySelector('.toast'));
+          var _toast = new bootstrap.Toast(document.querySelector('.toast'));
+
           document.querySelector('.toast .toast-body').innerHTML = __('Order updated');
-          toast.show();
+
+          _toast.show();
 
           _this.getData();
         } else {
