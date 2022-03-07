@@ -11,10 +11,11 @@
         "watch:scripts": "npm run build-dev:scripts -- -w",
         "watch:files": "nodemon -e '*' --ignore '*.js' --ignore '*.scss' --watch src --exec 'npm run copy'",
         "watch:serve": "serve public",
-        "copy": "copyfiles -e 'src/_/**' -e 'src/**/*.scss' -e 'src/**/*.js' -u -2 'src/**' 'public'",
+        "copy": "copyfiles -e 'src/_/**' -e 'src/**/*.scss' -e 'src/**/*.js' -u -1 'src/**' 'public'",
         "build": "rm -R -f public; mkdir public; npm-run-all build:*",
         "build:sass": "sass --no-source-map src/:public/",
         "build:scripts": "BABEL_ENV=production rollup -c",
+        "build:copy": "copyfiles -e 'src/_/**' -e 'src/**/*.scss' -e 'src/**/*.js' -u -1 'src/**' 'public'",
         "i18n": "",
         "build-prod": "npm-run-all build-prod:scripts build:*",
         "build-dev:scripts": "rollup -c",
@@ -43,6 +44,7 @@
         "prettier": "^2.2.1",
         "rollup-plugin-copy": "^3.4.0",
         "rollup-plugin-livereload": "^2.0.5",
-        "rollup-plugin-serve": "^1.1.0"
+        "rollup-plugin-serve": "^1.1.0",
+        "transformation-matrix": "^2.11.1"
     }
 }

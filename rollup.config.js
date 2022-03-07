@@ -51,8 +51,9 @@ const terserPlugin = terser({
 
 let workingFolders = [];
 
-/* prepare script import paths */
-let scriptFiles = glob.sync(absolutePath("src/**/!(_)*.js"))
+/* prepare script import paths TODO verify */
+let scriptFiles = glob.sync(absolutePath("src/!(_)*/!(_)*.js"))
+// let scriptFiles = glob.sync(absolutePath("src/**/!(_)*.js"))
 const scriptInputs = scriptFiles.reduce((files, input) => {
 	const parts = input.split("src/")
 	const fileKey = parts[parts.length - 1]
