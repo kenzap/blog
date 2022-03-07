@@ -1,7 +1,6 @@
 // js dependencies
 import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onKeyUp, getSiteId, toast, link } from '@kenzap/k-cloud';
-import {timeConverterAgo, formatPrice } from "../_/_helpers.js"
-import { showLoader, hideLoader, initHeader, initFooter } from "../_/_ui.js"
+import { timeConverterAgo, formatPrice } from "../_/_helpers.js"
 import { HTMLContent } from "../_/_cnt_orders.js"
 
 // where everything happens
