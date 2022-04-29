@@ -2,14 +2,14 @@
 
 Create and manage Kenzap Cloud articles. Publish to kenzap blog.
 
-![E-commerce](https://cdn.kenzap.com/github/img/extension-ecommerce.png)
+![Kenzap Blog](https://raw.githubusercontent.com/kenzap/blog/main/preview.png)
 
 <b>With solution one can:</b>
 
 <ul>
 <li>Create articles</li>
 <li>Manage blogs</li>
-<li>Publish to Kenzap Community</li>
+<li>Contribute to Kenzap Community</li>
 </ul>
 
 ## Setup
