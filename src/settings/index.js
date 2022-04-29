@@ -1,6 +1,5 @@
 // js dependencies
 import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onKeyUp, simulateClick, getSiteId, toast, link } from '@kenzap/k-cloud';
-import { getCurrencies } from "../_/_helpers.js"
 import { HTMLContent } from "../_/_cnt_settings.js"
 
 // where everything happens
@@ -118,29 +117,21 @@ const _this = {
             );
         }
 
-        // setup currencies
-        let coptions = '<option value="">'+__('Choose currency')+'</option>';
-        for (let c of getCurrencies()){
+        // // populate fields
+        // for (let field in response.settings){
 
-            coptions += `<option value="${ c.code }">${ __(c.name) } (${ __(c.code) })</option>`;
-        }
-        document.querySelector("#currency").innerHTML = coptions;
-
-        // populate fields
-        for (let field in response.settings){
-
-            if(typeof(response.settings[field]) === "undefined") continue;
-            if(response.settings[field] == "") continue;
-            if(document.querySelector("#"+field)) switch(document.querySelector("#"+field).dataset.type){
+        //     if(typeof(response.settings[field]) === "undefined") continue;
+        //     if(response.settings[field] == "") continue;
+        //     if(document.querySelector("#"+field)) switch(document.querySelector("#"+field).dataset.type){
         
-                case 'text':   
-                case 'email':  
-                case 'emails':  
-                case 'select':
-                case 'textarea': document.querySelector("#"+field).value = response.settings[field]; break;
-                // case 'radio': $("#"+field).parent().parent().parent().parent().parent().find("input[value=" + data.res[field] + "]").prop('checked', true); break;
-            }
-        }
+        //         case 'text':   
+        //         case 'email':  
+        //         case 'emails':  
+        //         case 'select':
+        //         case 'textarea': document.querySelector("#"+field).value = response.settings[field]; break;
+        //         // case 'radio': $("#"+field).parent().parent().parent().parent().parent().find("input[value=" + data.res[field] + "]").prop('checked', true); break;
+        //     }
+        // }
 
         // for(let s of document.querySelectorAll('.form-control')){
 
