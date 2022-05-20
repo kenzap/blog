@@ -79,6 +79,13 @@ export const formatCode = (code) => {
     return escapeHTML(result);
 }
 
+export const stripHTML = (html) => {
+
+   let tmp = document.createElement("DIV");
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || "";
+}
+
 export const escapeHTML = (html) => {
 
     return document.createElement('div').appendChild(document.createTextNode(html)).parentNode.innerHTML;

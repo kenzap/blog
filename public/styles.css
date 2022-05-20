@@ -1248,6 +1248,18 @@ footer {
 }
 
 /* Tell Quill not to scroll */
+.richtext-cnt {
+  display: none;
+  width: 100%;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  height: 0;
+  z-index: 1000;
+  background: #fff;
+}
+
 .ql-html-popupContainer {
   background: #f7f7f7 !important;
   border-radius: 6px !important;

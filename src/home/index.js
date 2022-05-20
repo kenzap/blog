@@ -1,6 +1,6 @@
 // js dependencies
 import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onKeyUp, getSiteId, toast, link, slugify } from '@kenzap/k-cloud';
-import { getPageNumber, getPagination, formatStatus, formatTags, formatTime, ImageDrop, simpleTags, unescapeHTML, formatCode, makeid } from "../_/_helpers.js"
+import { getPageNumber, getPagination, formatStatus, formatTags, formatTime, ImageDrop, simpleTags, unescapeHTML, formatCode, stripHTML, makeid } from "../_/_helpers.js"
 import { HTMLContent } from "../_/_cnt_home.js"
 // import QuillImageDropAndPaste from 'quill-image-drop-and-paste'
 
@@ -43,7 +43,7 @@ const _this = {
                 query: {
                     keys: {
                         type:       'api-key',
-                        keys:       ['public']
+                        keys:       ['222']
                     },
                     user: {
                         type:       'authenticate',
@@ -95,9 +95,6 @@ const _this = {
 
                 // render table
                 _this.renderPage(response);
-
-                // get rich text listeners
-                _this.initRichText(response);
 
                 // bind content listeners
                 _this.initListeners();
@@ -225,7 +222,7 @@ const _this = {
                     <td style="text-align:right;" class="">
                         <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuSizeButton${i}" data-i="${i}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${ __('Option') }</button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuSizeButton${i}" >
-                            <a class="dropdown-item preview" href="${ 'https://kenzap.com/post/' + response.posts[i].slug }" target="_blank" data-id="${ response.posts[i]._id }" >${ __('Preview') }</a>
+                            <a class="dropdown-item preview" href="${ 'https://dev.kenzap.com/post/' + response.posts[i].slug }" target="_blank" data-id="${ response.posts[i]._id }" >${ __('Preview') }</a>
                             <a class="dropdown-item edit-post" href="#" target="_self" data-id="${ response.posts[i]._id }" >${ __('Edit') }</a>
                             <a class="dropdown-item rename-layout d-none" href="#" data-toggle="modal" data-id="${ response.posts[i]._id }" >${ __('Preview') }</a>
                             <a class="dropdown-item edit-settings" href="#" data-toggle="modal" data-i="${i}" data-id="${ response.posts[i]._id }" data-title="${ response.posts[i].title }">${ __('Settings') }</a>
@@ -239,17 +236,6 @@ const _this = {
 
         // provide result to the page
         document.querySelector(".table tbody").innerHTML = list;
-    },
-    initRichText: () => {
-
-        // callback after dependencies loaded
-        // let cbf = function cbf() {
-
-      
-        // }
-
-        _this.loadDependencies('quill-1.3.7.min.js');
-        // _this.loadDependencies('quill.bubble-1.3.7.css');
     },
     initListeners: () => {
 
@@ -273,8 +259,16 @@ const _this = {
 
         // add product confirm
         onClick('.btn-modal', _this.listeners.modalSuccessBtn);
+
+        //
+        document.addEventListener("scroll", _this.listeners.scrollEvents);
     },
     listeners: {
+
+        scrollEvents: (e) => {
+
+            console.log(window.pageYOffset);
+        },
 
         htmlEditor: (e) => {
 
@@ -334,7 +328,7 @@ const _this = {
                             data:       [
                                 {
                                     'content-type': 'application/json',
-                                    'url': 'https://api.kenzap.com/v1/?cmd=remove_blog_post&id=' + e.currentTarget.dataset.id + '&token=' + _this.state.response.keys.public_token
+                                    'url': 'https://api.kenzap.com/v1/?cmd=remove_blog_post&id=' + e.currentTarget.dataset.id + '&token=' + _this.state.response.keys[0].token
                                 }
                             ]
                         }
@@ -463,10 +457,10 @@ const _this = {
         modal.querySelector(".btn-primary").innerHTML = __('Update');
         modal.querySelector(".btn-secondary").innerHTML = __('Cancel');
 
-        let modalHTml = `\
-        <div class="form-cont">\
+        let modalHTml = `
+        <div class="form-cont">
             <div class="form-group mb-3 row">
-                <label for="status" class="form-label">${ __('Status') }</label>\
+                <label for="status" class="form-label">${ __('Status') }</label>
                 <div class="col-sm-12 col-md-5">
                     <div class="mt-3" role="status" aria-live="polite">
                         <label class="form-check-label status-publish form-label">
@@ -484,14 +478,14 @@ const _this = {
                     </div>
                 </div>
             </div>
-            <div class="form-group mb-3">\
-                <label for="author" class="form-label">${ __('Author') }</label>\
-                <input type="text" class="form-control" id="author" autocomplete="off" placeholder="" value="${ _this.state.response.posts[i].author ? _this.state.response.posts[i].author : '' }">\
-            </div>\
-            <div class="form-group mb-3">\
-                <label for="p-sdesc" class="form-label">${ __('Tags') }</label>\
+            <div class="form-group mb-3">
+                <label for="author" class="form-label">${ __('Author') }</label>
+                <input type="text" class="form-control" id="author" autocomplete="off" placeholder="" value="${ _this.state.response.posts[i].author ? _this.state.response.posts[i].author : '' }">
+            </div>
+            <div class="form-group mb-3">
+                <label for="p-sdesc" class="form-label">${ __('Tags') }</label>
                 <div id="tags" class="simple-tags mb-4" data-simple-tags=""></div>
-            </div>\
+            </div>
         </div>`;
 
         modal.querySelector(".modal-body").innerHTML = modalHTml;
@@ -533,13 +527,13 @@ const _this = {
                             key:        'blog-post',   
                             id:         _this.state.response.posts[i]._id,         
                             data:       data
-                        }
-                        ,action: {
+                        },
+                        action: {
                             type:       'webhook',     
                             data:       [
                                 { 
                                     'content-type': 'application/json',
-                                    'url': 'https://api.kenzap.com/v1/?cmd=update_blog_post&id=' + _this.state.response.posts[i]._id + '&token=' + _this.state.response.keys.public_token
+                                    'url': 'https://api.kenzap.com/v1/?cmd=update_blog_post&id=' + _this.state.response.posts[i]._id + '&token=' + _this.state.response.keys[0].token
                                 }
                             ]
                         }
@@ -621,6 +615,16 @@ const _this = {
         let elem = modal.querySelector(".richtext-input");
         elem.classList.add('blog');
 
+        // paste listener
+        elem.addEventListener("paste", function (e) {
+
+            // e.preventDefault();
+            // e.stopPropagation();
+
+            console.log('paste');
+        });
+
+
         // Quill.register("modules/htmlEditButton", htmlEditButton);
         // Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
         // Quill.debug("warn");
@@ -640,13 +644,13 @@ const _this = {
                     // [ { 'indent': '-1'}, { 'indent': '+1' } ], 
                 
                 ]
-                ,clipboard: {
-                    // matchVisual: false
-                }
+                // ,clipboard: {
+                //     // matchVisual: false
+                // }
                 ,imageDrop: true
           
             },
-            scrollingContainer: '.scrolling-container', 
+            scrollingContainer: 'scrolling-container', 
             placeholder: __('Start typing..'),
             theme: 'bubble'
         });
@@ -669,6 +673,12 @@ const _this = {
             localStorage.setItem('article'+_this.state.post.id, _this.cleanMsg(text));
         });
 
+        // elem.on("mousedown", function(event){
+        //     event.preventDefault();
+        //     event.stopPropagation();
+        // });
+
+
         // restore previous text
         _this.state.quill.container.firstChild.innerHTML = blogContent;
 
@@ -680,11 +690,20 @@ const _this = {
         // document.querySelector('.ql-editor').classList.remove('ql-editor');
         document.querySelector('html').style.fontSize = '70%';
         
+       
         // modal close listener
         modal.addEventListener('hidden.bs.modal', function (event) {
 
             document.querySelector('html').style.fontSize = '100%';
         });
+
+        // console.log("load scroll");
+        // document.querySelector("#contents").addEventListener('scroll', function(e) {
+
+        //     // lastKnownScrollPosition = window.scrollY;
+
+        //     console.log("ddds");
+        // });
 
         // save button
         _this.listeners.modalSuccessBtnFunc = (e) => {
@@ -698,8 +717,9 @@ const _this = {
 
             // structure post object
             let data = {};
-            data.title =  _this.state.post.text.substring( _this.state.post.text.indexOf('<h1') + 4,  _this.state.post.text.indexOf('</h1>'));
+            data.title =  stripHTML(_this.state.post.text.substring( _this.state.post.text.indexOf('<h1') + 4,  _this.state.post.text.indexOf('</h1>')));
             data.text = _this.state.post.text;
+            
             data.img = [];
 
             // find all images
@@ -741,8 +761,11 @@ const _this = {
             
             if(data.title.length<2){ alert(__('Please provide "Heading 1" title')); return; }
 
+            // console.log(data.title);
+            // console.log(data.slug);
+
             // gen slug
-            if( _this.state.post.id == "0"){
+            if(_this.state.post.id == "0"){
 
                 data.status = "0";
                 data.kid = _this.state.response.user.id
@@ -822,13 +845,13 @@ const _this = {
                                 key:        'blog-post',   
                                 id:         _this.state.post.id,         
                                 data:       data
-                            }
-                            ,action: {
+                            },
+                            action: {
                                 type:       'webhook',     
                                 data:       [
                                     { 
                                         'content-type': 'application/json',
-                                        'url': 'https://api.kenzap.com/v1/?cmd=update_blog_post&id=' + _this.state.post.id + '&token=' + _this.state.response.keys.public_token
+                                        'url': 'https://api.kenzap.com/v1/?cmd=update_blog_post&id=' + _this.state.post.id + '&token=' + _this.state.response.keys[0].token
                                     }
                                 ]
                             }
@@ -959,7 +982,8 @@ const _this = {
     },
     initFooter: () => {
         
-        initFooter(__('Copyright © '+new Date().getFullYear()+' <a class="text-muted" href="https://kenzap.com/" target="_blank">Kenzap</a>. All rights reserved.'), __('Kenzap Cloud Services - Dashboard'));
+        initFooter(__('Created by %1$Kenzap%2$. ❤️ Licensed %3$GPL3%4$.', '<a class="text-muted" href="https://kenzap.com/" target="_blank">', '</a>', '<a class="text-muted" href="https://github.com/kenzap/ecommerce" target="_blank">', '</a>'), '');
+        // initFooter(__('Copyright © '+new Date().getFullYear()+' <a class="text-muted" href="https://kenzap.com/" target="_blank">Kenzap</a>. All rights reserved.'), __('Kenzap Cloud Services - Dashboard'));
     },
 }
 
