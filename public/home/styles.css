@@ -1141,6 +1141,10 @@ footer {
   visibility: visible;
 }
 
+.loader {
+  z-index: 1061;
+}
+
 /* dependency simple tags */
 .simple-tags {
   background-color: #fff;
@@ -1289,10 +1293,6 @@ footer {
   border: none !important;
 }
 
-.ql-container {
-  font-family: var(--bs-font-sans-serif) !important;
-}
-
 .ql-html-edit {
   opacity: 0.3;
   transition: all 0.16s ease-in-out;
@@ -1307,6 +1307,20 @@ footer {
   cursor: pointer;
 }
 
+.form-editor {
+  height: 100%;
+}
+
+.form-editor > pre {
+  outline: 0px solid transparent;
+  font-size: 120%;
+  height: 100%;
+}
+
+.ql-container {
+  font-family: var(--bs-font-sans-serif) !important;
+}
+
 .ql-container.ql-snow {
   border: none !important;
 }
@@ -1317,9 +1331,21 @@ footer {
   padding: 0px;
 }
 
-.form-editor > pre {
-  outline: 0px solid transparent;
-  font-size: 120%;
+.richtext-input .ql-editor blockquote {
+  border-left: 4px solid #707070;
+  border-left: 4px solid rgba(51, 51, 51, 0.7);
+  color: #707070;
+  color: rgba(51, 51, 51, 0.7);
+  font-size: 18px;
+  font-size: 1.8rem;
+  font-style: italic;
+  line-height: 1.6667;
+  margin-bottom: 1.6667em;
+  padding-left: 0.7778em;
+}
+
+.ql-editor ol li:not(.ql-direction-rtl), .ql-editor ul li:not(.ql-direction-rtl) {
+  padding-left: 0em;
 }
 
 .entry-content.ql-blank::before {

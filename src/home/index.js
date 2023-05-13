@@ -1,6 +1,6 @@
 // js dependencies
 import { showLoader, hideLoader, initHeader, initFooter, initBreadcrumbs, parseApiError, getCookie, onClick, onKeyUp, getSiteId, toast, link, slugify } from '@kenzap/k-cloud';
-import { getPageNumber, getPagination, formatStatus, formatTags, formatTime, ImageDrop, simpleTags, unescapeHTML, formatCode, stripHTML, makeid } from "../_/_helpers.js"
+import { getPageNumber, getPagination, formatStatus, formatTags, formatTime, ImageDrop, simpleTags, unescapeHTML, formatCode, stripHTML, makeid, whichTag, br, _tags } from "../_/_helpers.js"
 import { HTMLContent } from "../_/_cnt_home.js"
 // import QuillImageDropAndPaste from 'quill-image-drop-and-paste'
 
@@ -14,7 +14,9 @@ const _this = {
         API_key: null,
         limit: 10, // number of records to load per table
         quill: null,
-        mode: 'quill'
+        mode: 'quill',
+        scrollOffset: 0,
+        htmlEditor: '',
     },
     init: () => {
          
@@ -282,19 +284,37 @@ const _this = {
                 document.querySelector('.form-editor').classList.add('d-none');
                 document.querySelector('.form-quill').classList.remove('d-none');
 
-                _this.state.quill.container.firstChild.innerHTML = unescapeHTML(document.querySelector('.form-editor > pre').innerHTML);
+                let val = _this.state.htmlEditor.getValue();
+                val = html_beautify(val, { indent_size: 0, space_in_empty_paren: false });
+                _this.state.quill.container.firstChild.innerHTML = val.replace( /(^|>)[\n\t]+/g, ">" );
+
+                // console.log(_this.state.htmlEditor.getValue())
 
                 e.currentTarget.classList.remove('enabled');
 
+                _this.state.htmlEditor = '';
+
+                // restore scroll
+                document.querySelector('.modal-body').scrollTop = _this.state.scrollOffset;
+            
             }else{
 
                 _this.state.mode = 'editor';
 
                 toast(__('HTML editor mode on'));
                 document.querySelector('.form-editor').classList.remove('d-none');
-                document.querySelector('.form-editor > pre').innerHTML = formatCode(_this.state.post.text, true, true);
                 document.querySelector('.form-quill').classList.add('d-none');
-                
+
+                // editor not yet enabled
+                if(!_this.state.htmlEditor){
+                    _this.state.htmlEditor = ace.edit(_this.state.mode);
+                    ace.config.set('basePath', 'https://account.kenzap.com/js/ace/');
+                    _this.state.htmlEditor.getSession().setMode("ace/mode/html");
+                }
+
+                // add html code to editor
+                _this.state.htmlEditor.setValue(html_beautify(_this.state.post.text, { indent_size: 2, space_in_empty_paren: false }), -1);
+
                 e.currentTarget.classList.add('enabled');
             }
         },
@@ -395,6 +415,8 @@ const _this = {
     },
     editPost: (e) => {
 
+        showLoader();
+        
         _this.state.post.id = e.currentTarget.dataset.id;
         // console.log(_this.state.post.id);
 
@@ -590,9 +612,10 @@ const _this = {
   
         let title = '', sdesc = '';
         let modalHTML = `\
-        <div class="form-cont">\
+        <div class="form-cont" style="height:100%">\
             <div class="form-editor d-none" >
-                <pre class="ql-syntax" spellcheck="false"  data-gramm="false" contenteditable="true"></pre>
+                <div id="editor" class="html-editor inp" data-type="editor" style="min-height:600px;"></div>
+                <pre class="ql-syntax d-none" spellcheck="false"  data-gramm="false" contenteditable="true"></pre>
             </div>
             <div class="form-group mb-3 d-none">\
                 <div class="form-floating mb-3">
@@ -673,12 +696,6 @@ const _this = {
             localStorage.setItem('article'+_this.state.post.id, _this.cleanMsg(text));
         });
 
-        // elem.on("mousedown", function(event){
-        //     event.preventDefault();
-        //     event.stopPropagation();
-        // });
-
-
         // restore previous text
         _this.state.quill.container.firstChild.innerHTML = blogContent;
 
@@ -690,20 +707,24 @@ const _this = {
         // document.querySelector('.ql-editor').classList.remove('ql-editor');
         document.querySelector('html').style.fontSize = '70%';
         
+        // revert jumping scroll state
+        document.querySelector('.modal-body').addEventListener("scroll", (event) => {
+
+            if(_this.state.scrollOffset!=event.target.scrollTop && event.target.scrollTop == 0){ 
+
+                event.target.scrollTop = _this.state.scrollOffset;
+                console.log('restore scroll state'); 
+            }else{
+                
+                _this.state.scrollOffset = event.target.scrollTop;
+            }
+        });
        
         // modal close listener
         modal.addEventListener('hidden.bs.modal', function (event) {
 
             document.querySelector('html').style.fontSize = '100%';
         });
-
-        // console.log("load scroll");
-        // document.querySelector("#contents").addEventListener('scroll', function(e) {
-
-        //     // lastKnownScrollPosition = window.scrollY;
-
-        //     console.log("ddds");
-        // });
 
         // save button
         _this.listeners.modalSuccessBtnFunc = (e) => {
@@ -961,6 +982,56 @@ const _this = {
         //   quill.insertEmbed(index, 'image', res.data.image_url, 'user')
         // })
     },
+    // prettifyHtml: (html) => {
+    //     let indent = 0,
+    //         mode = 'IDLE',
+    //         inTag = false,
+    //         tag = '',
+    //         tagToCome = '',
+    //         shouldBreakBefore = false,
+    //         shouldBreakAfter = false,
+    //         breakBefore = ['p', 'ul', 'li'],
+    //         breakAfter = ['div', 'h1', 'h2', 'h3', 'h4', 'p', 'ul', 'li'];
+    
+    //     return html
+    //         .split('')
+    //         .reduce((output, char, index) => {
+    
+    //             if (char === '<') {
+    //                 tagToCome = whichTag(html, index);
+    //                 shouldBreakBefore = tagToCome && breakBefore.indexOf(tagToCome) >= 0;
+    //                 mode = 'TAG';
+    //                 inTag = true;
+    //                 output += (shouldBreakBefore ? br(indent) : '') + '<';
+    //             } else if (char === '/' && mode == 'TAG') {
+    //                 mode = 'CLOSING_TAG'
+    //                 inTag = true;
+    //                 output += '/';
+    //             } else if (char === ' ') {
+    //                 inTag = false;
+    //                 output += ' ';
+    //             } else if (char === '>') {
+    //                 if (mode === 'TAG' || mode === 'CLOSING_TAG') {
+    //                     indent += mode === 'TAG' ? +1 : -1;
+    
+    //                     shouldBreakAfter = breakAfter.indexOf(tag) >= 0;
+    //                     inTag = false;
+    //                     tag = '';
+    //                 }
+    //                 output += '>';
+    //                 output += shouldBreakAfter ? br(indent) : '';
+    //             } else {
+    //                 output += char;
+    
+    //                 if (inTag) {
+    //                     tag += char;
+    //                 }
+    //             }
+    
+    //             return output;
+    //         }, '');
+    // },
+    
     /**
      * Clean message from unwanted tags
      * @public
@@ -969,10 +1040,11 @@ const _this = {
 
         // text = text.replace('<p></p>','');
         // text = text.replace('<p><br></p>','');
-        text = text.replace('<h1><br></h1>','');
-        text = text.replace('<h2><br></h2>','');
-        text = text.replace('<h3><br></h3>','');
-        text = text.replace('<h4><br></h4>','');
+
+        // text = text.replace('<h1><br></h1>','');
+        // text = text.replace('<h2><br></h2>','');
+        // text = text.replace('<h3><br></h3>','');
+        // text = text.replace('<h4><br></h4>','');
 
         return text;
     },

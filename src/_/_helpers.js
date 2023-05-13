@@ -1,83 +1,4 @@
-import { getSiteId, getCookie } from '@kenzap/k-cloud';
-
-// export const escapeHTML = (html) => {
-//     escape.textContent = html;
-//     return escape.innerHTML;
-// }
-
-// Parameters:
-// code 								- (string) code you wish to format
-// stripWhiteSpaces			- (boolean) do you wish to remove multiple whitespaces coming after each other?
-// stripEmptyLines 			- (boolean) do you wish to remove empty lines?
-export const formatCode = (code) => {
-  
-    "use strict";
-    let stripWhiteSpaces = true;
-    let stripEmptyLines = true;
-    const whitespace = " ".repeat(2); // Default indenting 4 whitespaces
-    let currentIndent = 0;
-    const newlineChar = "\n";
-    let prevChar = null;
-    let char = null;
-    let nextChar = null;
-
-    code += '\
-    ';
-  
-    let result = "";
-    for (let pos = 0; pos <= code.length; pos++) {
-      prevChar = char;
-      char = code.substr(pos, 1);
-      nextChar = code.substr(pos + 1, 1);
-  
-      const isBrTag = code.substr(pos, 4) === "<br>";
-      const isOpeningTag = char === "<" && nextChar !== "/" && !isBrTag;
-      const isClosingTag = char === "<" && nextChar === "/" && !isBrTag;
-      const isTagEnd = prevChar === ">" && char !== "<" && currentIndent > 0;
-      const isTagNext =
-        !isBrTag &&
-        !isOpeningTag &&
-        !isClosingTag &&
-        isTagEnd &&
-        code.substr(pos, code.substr(pos).indexOf("<")).trim() === "";
-      if (isBrTag) {
-        // If opening tag, add newline character and indention
-        result += newlineChar;
-        currentIndent--;
-        pos += 4;
-      }
-      if (isOpeningTag) {
-        // If opening tag, add newline character and indention
-        result += newlineChar + whitespace.repeat(currentIndent);
-        currentIndent++;
-      }
-      // if Closing tag, add newline and indention
-      else if (isClosingTag) {
-        // If there're more closing tags than opening
-        if (--currentIndent < 0) currentIndent = 0;
-        result += newlineChar + whitespace.repeat(currentIndent);
-      }
-      // remove multiple whitespaces
-      else if (stripWhiteSpaces === true && char === " " && nextChar === " ")
-        char = "";
-      // remove empty lines
-      else if (stripEmptyLines === true && char === newlineChar) {
-        //debugger;
-        if (code.substr(pos, code.substr(pos).indexOf("<")).trim() === "")
-          char = "";
-      }
-      if (isTagEnd && !isTagNext) {
-        result += newlineChar + whitespace.repeat(currentIndent);
-      }
-  
-      result += char;
-    }
-    // logger.log("formatHTML", {
-    //   before: code,
-    //   after: result,
-    // });
-    return escapeHTML(result);
-}
+import { getSiteId, getCookie, showLoader, hideLoader } from '@kenzap/k-cloud';
 
 export const stripHTML = (html) => {
 
@@ -178,7 +99,7 @@ export const getPagination = (meta, cb) => {
     // 2 3 4 .. 
 
     let page = getPageNumber(); 
-    let html = '<ul class="pagination d-flex justify-content-end pagination-flat">';
+    let html = '<ul class="pagination d-flex justify-content-end pagination-flat mb-0">';
     html += '<li class="paginate_button page-item previous" id="listing_previous"><a href="#" aria-controls="order-listing" data-type="prev" data-page="0" tabindex="0" class="page-link"><span aria-hidden="true">&laquo;</span></li>';
     let i = 0;
     while(i<pbc){
@@ -412,6 +333,8 @@ export const makeid = (length) => {
 	 */
 	insert(dataUrl) {
 
+        showLoader();
+
         console.log("insert");
         console.log(dataUrl);
 
@@ -451,10 +374,12 @@ export const makeid = (length) => {
         .then(response => response.json())
         .then(response => {
 
+            hideLoader();
+
            //  _this.state.ajaxQueue -= 1;
             if(response.success){
 
-                let img = CDN + '/S'+sid+'/post-'+id+'-720.jpeg';
+                let img = CDN + '/S'+sid+'/post-'+id+'-720.webp';
 
                 // dataUrl = 'https://cdn4.buysellads.net/uu/1/41334/1550855401-cc_light.png';
                 const index = (this.quill.getSelection() || {}).index || this.quill.getLength();
